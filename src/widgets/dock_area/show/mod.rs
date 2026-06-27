@@ -1,7 +1,7 @@
 use duplicate::duplicate;
 use egui::{
-    CentralPanel, Color32, Context, CornerRadius, CursorIcon, EventFilter, Frame, Key, Pos2, Rect,
-    Sense, StrokeKind, Ui, Vec2,
+    CentralPanel, Color32, Context, CornerRadius, CursorIcon, EventFilter, Frame, Id, Key, Pos2,
+    Rect, Sense, StrokeKind, Ui, UiBuilder, Vec2,
 };
 use paste::paste;
 
@@ -36,13 +36,19 @@ impl<Tab> DockArea<'_, Tab> {
     #[deprecated = "Use show_inside() instead — with eframe 0.34+, implement App::ui which gives &mut Ui directly"]
     #[allow(deprecated)]
     pub fn show(self, ctx: &Context, tab_viewer: &mut impl TabViewer<Tab = Tab>) {
+        let mut root_ui = Ui::new(
+            ctx.clone(),
+            Id::new("egui_dock_root"),
+            UiBuilder::new().max_rect(ctx.content_rect()),
+        );
+
         CentralPanel::default()
             .frame(
                 Frame::central_panel(&ctx.global_style())
                     .inner_margin(0.)
                     .fill(Color32::TRANSPARENT),
             )
-            .show(ctx, |ui| {
+            .show(&mut root_ui, |ui| {
                 self.show_inside(ui, tab_viewer);
             });
     }
